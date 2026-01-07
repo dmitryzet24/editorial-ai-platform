@@ -1,0 +1,20 @@
+{
+  "event_id": "uuid",
+  "source_platform": "reddit",
+  "ingest_at": "iso8601_timestamp",
+  "payload": {
+    "title": "tring",
+    "url": "string",
+    "content_text": "string",
+    "engagement": {
+      "score": "int",
+      "upvote_ratio": "float",
+      "num_comments": "int"
+    }
+    "metadata": {
+      "subreddit": "string",
+      "author": "string",
+      "is_visual": "boolean"
+    }
+  }
+}

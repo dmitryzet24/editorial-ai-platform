@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:latest
+    container_name: maylily-redpanda
+    command:
+      - redpanda start
+      - --overprovisioned
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --node-id 0
+      - --check=false
+    ports:
+      - "${REDPANDA_PORT}:9092"
+      - "19092:19092"
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: maylily-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: maylily-vector-db
+    ports:
+      - "${CHROMA_PORT}:8000"
+    volumes:
+      - chroma_data:/chroma/data
+
+  console:
+    image: docker.redpanda.com/redpandadata/console:latest
+    container_name: maylily-console
+    entrypoint: /bin/sh
+    command: -c "echo \"$$CONSOLE_CONFIG_FILE\" > /tmp/config.yml; /app/console"
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda:9092"]
+    ports:
+      - "${REDPANDA_CONSOLE_PORT}:8080"
+    depends_on:
+      - redpanda
+volumes:
+  postgres_data:
+  chroma_data:
